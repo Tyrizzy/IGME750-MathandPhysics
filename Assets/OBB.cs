@@ -6,6 +6,7 @@ public class OBB : MonoBehaviour
     public float restitution = 0.7f;
     public Vector3 size = Vector3.one;
     public Vector3 centerOffset = Vector3.zero;
+
     private Vector3 velocity;
     private Vector3 angularVelocity;
 
@@ -20,12 +21,10 @@ public class OBB : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Apply angular velocity to rotation
+        transform.rotation *= Quaternion.Euler(angularVelocity * Time.fixedDeltaTime);
+
         CheckForCollisions();
-    }
-
-    private void Update()
-    {
-
     }
 
     private void CheckForCollisions()
@@ -34,8 +33,8 @@ public class OBB : MonoBehaviour
         {
             if (other != this && IsCollidingWith(other))
             {
-                OnCollisionDetected(other, CalculateMTD(other));
-                Debug.Log($"{gameObject.name} is colliding with {other.gameObject.name}");
+                  OnCollisionDetected(other, CalculateMTD(other));
+                  Debug.Log($"{gameObject.name} is colliding with {other.gameObject.name}");
             }
         }
     }
@@ -251,12 +250,19 @@ public class OBB : MonoBehaviour
         velocity -= (1 / this.objectMass) * impulse;
         other.velocity += (1 / other.objectMass) * impulse;
 
+        // Calculate torque based on relative positions
+        Vector3 thisRelativePos = transform.position - (transform.position + mtd * (this.objectMass / (this.objectMass + other.objectMass)));
+        Vector3 otherRelativePos = other.transform.position - (other.transform.position - mtd * (other.objectMass / (this.objectMass + other.objectMass)));
+        Vector3 torque = Vector3.Cross(thisRelativePos, impulse);
+
+        // Apply torque to angular velocity
+        angularVelocity += torque / objectMass;
+
         // Move objects out of collision based on their mass ratio
         float totalMass = this.objectMass + other.objectMass;
         transform.position -= mtd * (this.objectMass / totalMass);
         other.transform.position += mtd * (other.objectMass / totalMass);
     }
-
 
     private void ApplyMomentum(Vector3 momentum, Vector3 angularMomentum)
     {
@@ -265,6 +271,12 @@ public class OBB : MonoBehaviour
 
         // Apply angular momentum to the object
         angularVelocity += angularMomentum / objectMass;
+    }
+
+    public void ObjMass()
+    {
+        float ObjMass = 1;
+        objectMass = ObjMass;
     }
 
     private void OnDrawGizmosSelected()

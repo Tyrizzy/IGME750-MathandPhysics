@@ -56,4 +56,24 @@ public class Movement : MonoBehaviour
         objectRot = new Vector3(0, Input.GetAxisRaw("Horizontal"), 0);
     }
 
+    public void Speed()
+    {
+        float Speed = 1; 
+        objectSpeed = Speed;
+    }
+    public void RotSpeed()
+    {
+        float RotSpeed = 300;
+        rotSpeed = RotSpeed;
+    }
+    public void Friction()
+    {
+        float Friction = 0;
+        friction = Friction;
+    }
+    public void Drag()
+    {
+        float Drag = 0;
+        drag = Drag;
+    }
 }
